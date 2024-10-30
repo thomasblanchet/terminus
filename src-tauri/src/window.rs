@@ -11,6 +11,7 @@ const WINDOW_WIDTH: f64 = 1600.0;
 pub fn build_window(app_handle: &mut AppHandle) -> Result<(), Box<dyn Error>> {
     let win_builder = WebviewWindowBuilder::new(app_handle, "main", WebviewUrl::default())
         .title("")
+        .disable_drag_drop_handler()
         .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT);
     #[cfg(target_os = "macos")]
     let win_builder = win_builder.title_bar_style(TitleBarStyle::Transparent);

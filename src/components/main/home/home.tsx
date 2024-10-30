@@ -22,6 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { FileExplorer } from "@/components/helper/file-explorer";
 
 export function Home() {
   return (
