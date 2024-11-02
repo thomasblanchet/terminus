@@ -51,7 +51,7 @@ impl FilePreview {
         language: String,
         file_path: String,
     ) -> Option<Self> {
-        let preview = read_k_chars_from_n_lines(&file_path, 25, 7)
+        let preview = read_k_chars_from_n_lines(&file_path, 1024, 7)
             .await
             .ok()?
             .join("\n");

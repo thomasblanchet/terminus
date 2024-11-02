@@ -22,7 +22,6 @@ use window::build_window;
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_sql::Builder::new().build())
         .setup(app_setup)
         .invoke_handler(tauri::generate_handler![
             set_titlebar_theme,
