@@ -5,8 +5,8 @@ use tauri::{AppHandle, TitleBarStyle, WebviewUrl, WebviewWindowBuilder, Window};
 
 use crate::error::SerializableError;
 
-const WINDOW_HEIGHT: f64 = 900.0;
-const WINDOW_WIDTH: f64 = 1600.0;
+const WINDOW_HEIGHT: f64 = 1000.0;
+const WINDOW_WIDTH: f64 = 1700.0;
 
 pub fn build_window(app_handle: &mut AppHandle) -> Result<(), Box<dyn Error>> {
     let win_builder = WebviewWindowBuilder::new(app_handle, "main", WebviewUrl::default())

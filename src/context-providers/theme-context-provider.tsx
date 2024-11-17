@@ -12,11 +12,13 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme;
+  resolvedTheme: "dark" | "light";
   setTheme: (theme: Theme) => void;
 };
 
 const initialState: ThemeProviderState = {
   theme: "system",
+  resolvedTheme: "light",
   setTheme: () => null,
 };
 
@@ -31,27 +33,35 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
   );
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => {
+    if (theme === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    return theme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      invoke("set_titlebar_theme", { theme: systemTheme });
-      root.classList.add(systemTheme);
-      monaco.editor.setTheme(systemTheme === "dark" ? "vs-dark" : "vs");
-      return;
-    }
-    invoke("set_titlebar_theme", { theme });
-    root.classList.add(theme);
-    monaco.editor.setTheme(theme === "dark" ? "vs-dark" : "vs");
+
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+
+    const appliedTheme = theme === "system" ? systemTheme : theme;
+    setResolvedTheme(appliedTheme);
+
+    root.classList.add(appliedTheme);
+    monaco.editor.setTheme(appliedTheme === "dark" ? "vs-dark" : "vs");
+    invoke("set_titlebar_theme", { theme: appliedTheme });
   }, [theme]);
 
   const value = {
     theme,
+    resolvedTheme,
     setTheme: (theme: Theme) => {
       localStorage.setItem(storageKey, theme);
       setTheme(theme);

@@ -1,6 +1,12 @@
-import { useState, useRef } from "react";
-import { useDrag, useDrop, DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { useState, useRef, useCallback, useEffect } from "react";
+import {
+  useDrag,
+  useDrop,
+  DndProvider,
+  useDragLayer,
+  DragPreviewImage,
+} from "react-dnd";
+import { HTML5Backend, getEmptyImage } from "react-dnd-html5-backend";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -23,6 +29,7 @@ import { clsx } from "clsx";
 import { PathDisplay } from "../path-display";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "../ui/label";
 
 const ItemTypes = {
   FILE: "file",
@@ -33,9 +40,8 @@ export function FileExplorer() {
   const [expandedFolders, setExpandedFolders] = useState(
     new Set(["/Users/example/Documents/Documents"]),
   );
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItems, setSelectedItems] = useState(new Set());
 
-  // Mock data structure - in real app, this would come from Tauri
   const fileTree = {
     name: "Documents",
     type: "directory",
@@ -59,20 +65,22 @@ export function FileExplorer() {
     ],
   };
 
-  const handleItemClick = (item, path) => {
-    setSelectedItem(path);
-    if (item.type === "directory") {
-      setExpandedFolders((prev) => {
-        const next = new Set(prev);
+  const handleItemClick = useCallback((item, path, event) => {
+    setSelectedItems((prev) => {
+      const next = new Set(prev);
+      if (event.metaKey || event.ctrlKey) {
         if (next.has(path)) {
           next.delete(path);
         } else {
           next.add(path);
         }
-        return next;
-      });
-    }
-  };
+      } else {
+        next.clear();
+        next.add(path);
+      }
+      return next;
+    });
+  }, []);
 
   interface FileTreeItemProps {
     item: any;
@@ -83,13 +91,13 @@ export function FileExplorer() {
   function FileTreeItem({ item, path = "", depth = 0 }: FileTreeItemProps) {
     const fullPath = `${path}/${item.name}`;
     const isExpanded = expandedFolders.has(fullPath);
-    const isSelected = selectedItem === fullPath;
+    const isSelected = selectedItems.has(fullPath);
 
     const ref = useRef(null);
 
-    const [{ isDragging }, drag] = useDrag({
+    const [{ isDragging }, drag, preview] = useDrag({
       type: ItemTypes.FILE,
-      item: { id: fullPath, type: item.type },
+      item: { id: Array.from(selectedItems), type: item.type },
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
@@ -98,22 +106,15 @@ export function FileExplorer() {
     const [{ isOver, canDrop }, drop] = useDrop({
       accept: ItemTypes.FILE,
       canDrop: (draggedItem) => {
-        // Prevent dropping into self or non-directories
-        if (draggedItem.id === fullPath || item.type !== "directory") {
-          return false;
+        for (const id of draggedItem.id) {
+          if (fullPath.startsWith(id) || item.type !== "directory") {
+            return false;
+          }
         }
-        // Prevent dropping a parent into its own child
-        if (fullPath.startsWith(draggedItem.id)) {
-          return false;
-        }
-        /*if (draggedItem.id.startsWith(fullPath)) {
-          return false;
-          }*/
         return true;
       },
       drop: (draggedItem) => {
         console.log(`Move ${draggedItem.id} to ${fullPath}`);
-        // In real app: Implement Tauri file system move operation here
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -122,6 +123,51 @@ export function FileExplorer() {
     });
 
     drag(drop(ref));
+
+    useEffect(() => {
+      // This gets called after every render, by default
+      // (the first one, and every one after that)
+
+      // Use empty image as a drag preview so browsers don't draw it
+      // and we can draw whatever we want on the custom drag layer instead.
+      preview(getEmptyImage(), {
+        // IE fallback: specify that we'd rather screenshot the node
+        // when it already knows it's being dragged so we can hide it with CSS.
+        captureDraggingState: true,
+      });
+      // If you want to implement componentWillUnmount,
+      // return a function from here, and React will call
+      // it prior to unmounting.
+      // return () => console.log('unmounting...');
+    }, []);
+
+    const handleMouseDown = (item, path, event) => {
+      if (event.metaKey || event.ctrlKey || isSelected) {
+        return;
+      }
+      setSelectedItems((prev) => {
+        const next = new Set(prev);
+        // Clear selection if the item isn't already selected
+        if (!next.has(fullPath)) {
+          next.clear();
+          next.add(fullPath);
+        }
+        return next;
+      });
+    };
+
+    const handleChevronClick = (event) => {
+      event.stopPropagation();
+      setExpandedFolders((prev) => {
+        const next = new Set(prev);
+        if (next.has(fullPath)) {
+          next.delete(fullPath);
+        } else {
+          next.add(fullPath);
+        }
+        return next;
+      });
+    };
 
     return (
       <div>
@@ -132,20 +178,28 @@ export function FileExplorer() {
             "rounded-sm hover:bg-secondary transition",
             isSelected && "bg-secondary",
             isOver && canDrop && "bg-slate-200 dark:bg-slate-700",
-            isDragging && "transition-none opacity-50",
+            //isDragging && "transition-none",
           )}
           style={{ paddingLeft: `${4 + depth * 14}px` }}
-          onClick={() => handleItemClick(item, fullPath)}
+          onMouseDown={(e) => handleMouseDown(item, fullPath, e)}
+          onClick={(e) => handleItemClick(item, fullPath, e)}
         >
-          <div className="flex items-center pointer-events-none">
-            <span className="w-4 h-4 mr-1">
-              {item.type === "directory" &&
-                (isExpanded ? (
-                  <ChevronDown size={16} />
-                ) : (
-                  <ChevronRight size={16} />
-                ))}
-            </span>
+          <div className="flex items-center">
+            {item.type === "directory" ? (
+              <div
+                onMouseDown={handleChevronClick}
+                className="h-5 w-5 mx-1 flex items-center justify-center text-center rounded-sm hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
+                {item.type === "directory" &&
+                  (isExpanded ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  ))}
+              </div>
+            ) : (
+              <div className="h-5 w-5 mr-1"></div>
+            )}
             <span className="w-4 h-4 mr-2">
               {item.type === "directory" ? (
                 <Folder size={16} />
@@ -193,12 +247,49 @@ export function FileExplorer() {
     );
   }
 
+  function CustomDragLayer() {
+    const { isDragging, currentOffset, selectedItems } = useDragLayer(
+      (monitor) => ({
+        isDragging: monitor.isDragging(),
+        currentOffset: monitor.getSourceClientOffset(),
+        selectedItems: monitor.getItem()?.id || [],
+      }),
+    );
+
+    if (!isDragging || !currentOffset) return null;
+
+    return (
+      <div
+        style={{
+          position: "fixed",
+          pointerEvents: "none",
+          left: currentOffset.x + 50,
+          top: currentOffset.y,
+          zIndex: 1000,
+        }}
+      >
+        <div className="flex flex-col space-y-1 opacity-75">
+          {selectedItems.map((path, index) => (
+            <div
+              key={index}
+              className="flex items-center bg-secondary rounded-sm py-[6px] px-4 shadow-xl border"
+            >
+              <FileText size={16} className="mr-2" />
+              <span className="text-sm">{path.split("/").pop()}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card className="border-none h-full p-4 flex flex-col space-y-2">
       <div className="border shadow-sm rounded-sm">
         <PathDisplay pathComponents={["Users", "example"]} />
       </div>
       <DndProvider backend={HTML5Backend}>
+        <CustomDragLayer />
         <div className="border shadow-sm rounded-sm flex-grow px-1 overflow-y-scroll">
           <FileTreeItem item={fileTree} path="/Users/example" />
         </div>
@@ -209,7 +300,7 @@ export function FileExplorer() {
           Refresh
         </Button>
         <div className="flex flex-row space-x-2 items-center">
-          <span className="text-xs">Show Hidden Files</span>
+          <Label className="text-xs">Show Hidden Files</Label>
           <Switch />
         </div>
       </div>
