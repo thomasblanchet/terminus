@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT working_directory FROM terminals WHERE id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "working_directory",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f434eac633de7ed598010963b14b3dbd7d849b4e0f62ec02fc3442f6854b0f18"
+}

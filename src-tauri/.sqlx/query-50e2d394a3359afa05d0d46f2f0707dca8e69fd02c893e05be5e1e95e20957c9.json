@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE terminals SET working_directory = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "50e2d394a3359afa05d0d46f2f0707dca8e69fd02c893e05be5e1e95e20957c9"
+}

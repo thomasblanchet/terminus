@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT command\n            FROM terminal_commands\n            WHERE terminal_commands.terminal_id = ?\n            ORDER BY terminal_commands.timestamp\n            LIMIT ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "command",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c26a1deffbf8d4da6124db42e5bf924c8c7cfd862ffefce0aaa693331b940ecf"
+}

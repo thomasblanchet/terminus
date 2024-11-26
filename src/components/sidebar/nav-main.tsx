@@ -26,38 +26,43 @@ import {
   SidebarMenuSubItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import {
+  useApp,
+  isHomeView,
+  isHistoryView,
+  isSettingsView,
+} from "@/context-providers/app-context-provider";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+export function NavMain() {
+  const { currentView, setCurrentView } = useApp();
   return (
     <SidebarGroup>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton isActive={true}>
+          <SidebarMenuButton
+            isActive={isHomeView(currentView)}
+            onClick={() => {
+              setCurrentView({ type: "home" });
+            }}
+          >
             <House />
             <span>Home</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-          <SidebarMenuButton>
+          <SidebarMenuButton
+            isActive={isHistoryView(currentView)}
+            onClick={() => setCurrentView({ type: "history" })}
+          >
             <History />
             <span>History</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-          <SidebarMenuButton>
+          <SidebarMenuButton
+            isActive={isSettingsView(currentView)}
+            onClick={() => setCurrentView({ type: "settings" })}
+          >
             <Settings2 />
             <span>Settings</span>
           </SidebarMenuButton>

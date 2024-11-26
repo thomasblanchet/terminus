@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO terminal_environments (terminal_id, name, value) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "3ab9810e9469113836fd1e6cddd84fe0a3708556d7cfc786aa3dd030bb2f3727"
+}

@@ -29,8 +29,10 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import { useApp } from "@/context-providers/app-context-provider";
 
 export function NavTags() {
+  const { currentView, setCurrentView, tags } = useApp();
   return (
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -48,38 +50,45 @@ export function NavTags() {
         </SidebarGroupLabel>
         <CollapsibleContent>
           <SidebarMenu>
-            <SidebarMenuItem key="tag-1">
-              <SidebarMenuButton>
-                <span className="rounded-full px-1 bg-red-600 h-3 w-3"></span>
-                My Tag
-              </SidebarMenuButton>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuAction>
-                    <MoreHorizontal />
-                    <span className="sr-only">More</span>
-                  </SidebarMenuAction>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-48"
-                  side="right"
-                  align="start"
+            {tags.map((tag) => (
+              <SidebarMenuItem key={tag.id}>
+                <SidebarMenuButton
+                  onClick={() => setCurrentView(tag)}
+                  isActive={
+                    currentView.type === "tag" && currentView.id === tag.id
+                  }
                 >
-                  <DropdownMenuItem>
-                    <PenLine className="text-muted-foreground" />
-                    <span>Rename Tag</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Palette className="text-muted-foreground" />
-                    <span>Change Color</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Trash2 className="text-muted-foreground" />
-                    <span>Delete Tag</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
+                  <span className="rounded-full px-1 bg-red-600 h-3 w-3"></span>
+                  {tag.tag}
+                </SidebarMenuButton>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuAction>
+                      <MoreHorizontal />
+                      <span className="sr-only">More</span>
+                    </SidebarMenuAction>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-48"
+                    side="right"
+                    align="start"
+                  >
+                    <DropdownMenuItem>
+                      <PenLine className="text-muted-foreground" />
+                      <span>Rename Tag</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Palette className="text-muted-foreground" />
+                      <span>Change Color</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Trash2 className="text-muted-foreground" />
+                      <span>Delete Tag</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </CollapsibleContent>
       </SidebarGroup>

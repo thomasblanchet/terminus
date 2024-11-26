@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM terminal_environments WHERE terminal_id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "95818cd1d1e85f6f70abe405ac70134ddb6e6ebecf268d65e71f10140836aa73"
+}

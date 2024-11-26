@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT id AS \"id!\", working_directory, modified_at\n            FROM terminals\n            ORDER BY modified_at DESC\n            LIMIT ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "working_directory",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "modified_at",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "7821e9a0168795999a852a2f4164deedc93c83fc7b1063881ca86feb84b3e407"
+}

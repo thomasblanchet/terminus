@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id AS command_id, command, timestamp\n            FROM terminal_commands\n            WHERE terminal_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "command_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "command",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "timestamp",
+        "ordinal": 2,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3dc14bc91cc730f9899d04e3f4ee11e553e0e7a591d94b1ca48b6d85e44e3800"
+}

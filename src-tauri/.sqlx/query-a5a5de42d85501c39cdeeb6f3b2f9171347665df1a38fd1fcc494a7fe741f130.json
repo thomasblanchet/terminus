@@ -1,10 +1,10 @@
 {
   "db_name": "SQLite",
-  "query": "\n            SELECT id, modified_at AS timestamp\n            FROM terminal_sessions\n            ORDER BY modified_at DESC\n            LIMIT ?\n            ",
+  "query": "INSERT INTO terminal_commands(terminal_id, command) VALUES (?, ?)\n            RETURNING id AS \"id!\", timestamp",
   "describe": {
     "columns": [
       {
-        "name": "id",
+        "name": "id!",
         "ordinal": 0,
         "type_info": "Integer"
       },
@@ -15,12 +15,12 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 2
     },
     "nullable": [
-      false,
+      true,
       false
     ]
   },
-  "hash": "7b056d63d0510726c517d31c3614a1d0e0bac7cbeacddd8c040f8306e4207e5c"
+  "hash": "a5a5de42d85501c39cdeeb6f3b2f9171347665df1a38fd1fcc494a7fe741f130"
 }

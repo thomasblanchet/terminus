@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT modified_at, working_directory\n            FROM terminals\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "modified_at",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "working_directory",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "24fb8715806c463ba0ce6193aeff8cbc2610c757c29674e75cca601e7cf3563e"
+}

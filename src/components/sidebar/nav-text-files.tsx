@@ -1,35 +1,26 @@
-import {
-  FileCode2,
-  MoreHorizontal,
-  PenLine,
-  X,
-  Plus,
-  Boxes,
-  ChevronDown,
-} from "lucide-react";
+import { ChevronDown, FileCode2, Plus, X } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarGroupAction,
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+  isFileEditorView,
+  useApp,
+} from "@/context-providers/app-context-provider";
 
 export function NavTextFiles() {
+  const { currentView, setCurrentView, openFileEditors } = useApp();
   return (
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -47,12 +38,25 @@ export function NavTextFiles() {
         </SidebarGroupLabel>
         <CollapsibleContent>
           <SidebarMenu>
-            <SidebarMenuItem key="project-1">
-              <SidebarMenuButton>main.sh</SidebarMenuButton>
-              <SidebarMenuAction>
-                <X className="h-4 w-4" />
-              </SidebarMenuAction>
-            </SidebarMenuItem>
+            {openFileEditors.map((fileEditor) => (
+              <SidebarMenuItem key={fileEditor.id}>
+                <SidebarMenuButton
+                  className="font-mono text-xs"
+                  onClick={() => {
+                    setCurrentView(fileEditor);
+                  }}
+                  isActive={
+                    isFileEditorView(currentView) &&
+                    currentView.id === fileEditor.id
+                  }
+                >
+                  {fileEditor.name}
+                </SidebarMenuButton>
+                <SidebarMenuAction>
+                  <X className="h-4 w-4" />
+                </SidebarMenuAction>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </CollapsibleContent>
       </SidebarGroup>
