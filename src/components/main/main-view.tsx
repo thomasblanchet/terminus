@@ -1,17 +1,16 @@
 import { Home } from "@/components/main/home/home";
+import { TerminalLoadingScreen } from "@/components/main/terminal/loading-screen";
 import { TerminalPanel } from "@/components/main/terminal/terminal-panel";
 import {
   isFileEditorView,
   isHistoryView,
   isHomeView,
+  isLoadingTerminalView,
   isSettingsView,
   isTagView,
   isTerminalView,
-  isLoadingTerminalView,
   useApp,
 } from "@/context-providers/app-context-provider";
-import { TerminalLoadingScreen } from "@/components/main/terminal/loading-screen";
-import { useEffect } from "react";
 import clsx from "clsx";
 
 export function MainView() {
