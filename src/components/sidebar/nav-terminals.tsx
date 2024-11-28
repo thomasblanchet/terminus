@@ -28,29 +28,17 @@ import {
   isTerminalView,
   useApp,
 } from "@/context-providers/app-context-provider";
-
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
-import { listen } from "@tauri-apps/api/event";
+import { useTerminalManager } from "@/context-providers/terminal-manager-context-provider";
 
 interface TerminalSession {
   terminalId: number;
   workingDirectory: string;
 }
 
-interface TerminalRawData {
-  terminalId: number;
-  data: Uint8Array;
-}
-
 export function NavTerminals() {
-  const {
-    openTerminals,
-    setOpenTerminals,
-    currentView,
-    setCurrentView,
-    terminalsRef,
-  } = useApp();
+  const { openTerminals, setOpenTerminals, currentView, setCurrentView } =
+    useApp();
+  const { createTerminalInstance } = useTerminalManager();
 
   function handleNewTerminal() {
     invoke<TerminalSession>("create_new_terminal").then((session) => {
@@ -60,34 +48,7 @@ export function NavTerminals() {
       };
       setCurrentView(loadingTerminal);
       setOpenTerminals((prev) => [...prev, loadingTerminal]);
-
-      const terminal = new Terminal();
-      const fitAddon = new FitAddon();
-      terminal.loadAddon(fitAddon);
-      const node = document.createElement("div");
-      node.className = "h-full w-full";
-      const unlistenOutput = listen<TerminalRawData>(
-        `terminal-output-${session.terminalId}`,
-        (event) => {
-          const u8arr = new Uint8Array(event.payload.data);
-          terminal.write(u8arr);
-        },
-      );
-      terminal.onData((data: string) => {
-        const encoder = new TextEncoder();
-        const u8array = encoder.encode(data);
-        invoke("send_input_to_terminal", {
-          terminalId: session.terminalId,
-          input: u8array,
-        }).catch(console.error);
-      });
-      terminalsRef.current.set(session.terminalId, {
-        terminal: terminal,
-        fitAddon: fitAddon,
-        unlistenOutput: unlistenOutput,
-        node: node,
-      });
-
+      createTerminalInstance(session.terminalId);
       invoke<TerminalSession>("open_terminal", {
         terminalId: session.terminalId,
       }).then((session) => {
@@ -122,7 +83,9 @@ export function NavTerminals() {
     });
   }
 
-  function renderTerminal(terminal: LoadingTerminalView | TerminalView) {
+  function renderTerminalMenuItem(
+    terminal: LoadingTerminalView | TerminalView,
+  ) {
     if (isLoadingTerminalView(terminal)) {
       return (
         <div className="flex items-center space-x-2 text-muted-foreground text-xs">
@@ -177,7 +140,7 @@ export function NavTerminals() {
                     setCurrentView(terminal);
                   }}
                 >
-                  {renderTerminal(terminal)}
+                  {renderTerminalMenuItem(terminal)}
                 </SidebarMenuButton>
                 <SidebarMenuAction>
                   <X className="h-4 w-4" />

@@ -1,32 +1,49 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TableProperties, History, NotebookPen, X, Plus } from "lucide-react";
-import { XTermComponent } from "@/components/main/terminal/xterm";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  isTerminalView,
+  TerminalView,
+  useApp,
+} from "@/context-providers/app-context-provider";
+import clsx from "clsx";
+import { History, NotebookPen, Plus, TableProperties, X } from "lucide-react";
 
 import { EnvironmentTable } from "@/components/main/terminal/environment-table";
+import { AugmentedTerminal } from "./augmented-terminal";
 
 export function TerminalPanel() {
+  const { openTerminals, currentView } = useApp();
+
   return (
     <ResizablePanelGroup direction="vertical">
       <ResizablePanel className="p-3">
-        <XTermComponent />
+        {openTerminals.filter(isTerminalView).map((terminal: TerminalView) => (
+          <div
+            key={terminal.terminalId}
+            className={clsx(
+              "h-full",
+              isTerminalView(currentView) &&
+                terminal.terminalId == currentView.terminalId
+                ? "block"
+                : "hidden",
+            )}
+          >
+            <AugmentedTerminal terminalId={terminal.terminalId} />
+          </div>
+        ))}
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30} className="bg-background z-50">

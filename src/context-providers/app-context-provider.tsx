@@ -1,7 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
-import { Terminal } from "@xterm/xterm";
-import { FitAddon } from "@xterm/addon-fit";
-import { UnlistenFn } from "@tauri-apps/api/event";
+import React, { createContext, useContext, useState } from "react";
 
 export type HomeView = {
   type: "home";
@@ -78,13 +75,6 @@ export function isTagView(view: AppView): view is TagView {
   return view.type === "tag";
 }
 
-export type XTermObjects = {
-  terminal: Terminal;
-  fitAddon: FitAddon;
-  unlistenOutput: Promise<UnlistenFn>;
-  node: HTMLDivElement;
-};
-
 type AppProviderState = {
   currentView: AppView;
   setCurrentView: React.Dispatch<React.SetStateAction<AppView>>;
@@ -93,8 +83,6 @@ type AppProviderState = {
   setOpenTerminals: React.Dispatch<
     React.SetStateAction<(TerminalView | LoadingTerminalView)[]>
   >;
-
-  terminalsRef: React.MutableRefObject<Map<number, XTermObjects>>;
 
   openFileEditors: FileEditorView[];
   setOpenFileEditors: React.Dispatch<React.SetStateAction<FileEditorView[]>>;
@@ -109,8 +97,6 @@ const AppContext = createContext<AppProviderState>({
 
   openTerminals: [],
   setOpenTerminals: () => {},
-
-  terminalsRef: null!,
 
   openFileEditors: [],
   setOpenFileEditors: () => {},
@@ -129,7 +115,6 @@ export function AppProvider({
   const [openTerminals, setOpenTerminals] = useState<
     (TerminalView | LoadingTerminalView)[]
   >([]);
-  const terminalsRef = useRef(new Map<number, XTermObjects>());
   const [openFileEditors, setOpenFileEditors] = useState<FileEditorView[]>([
     {
       type: "file-editor",
@@ -156,7 +141,6 @@ export function AppProvider({
     setCurrentView,
     openTerminals,
     setOpenTerminals,
-    terminalsRef,
     openFileEditors,
     setOpenFileEditors,
     tags,

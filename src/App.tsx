@@ -5,19 +5,22 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppProvider } from "@/context-providers/app-context-provider";
 import { ThemeProvider } from "@/context-providers/theme-context-provider";
 import "./App.css";
+import { TerminalManagerProvider } from "./context-providers/terminal-manager-context-provider";
 
 function App() {
   return (
     <main>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <AppProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset className="overflow-y-scroll h-[calc(100vh-25px)]">
-              <MainView />
-            </SidebarInset>
-            <HelperTabs />
-          </SidebarProvider>
+          <TerminalManagerProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset className="overflow-y-scroll h-[calc(100vh-25px)]">
+                <MainView />
+              </SidebarInset>
+              <HelperTabs />
+            </SidebarProvider>
+          </TerminalManagerProvider>
         </AppProvider>
       </ThemeProvider>
     </main>

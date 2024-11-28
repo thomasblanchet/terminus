@@ -1,17 +1,19 @@
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Trash2, PenLine } from "lucide-react";
-import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { useTerminalManager } from "@/context-providers/terminal-manager-context-provider";
+import {
+  useApp,
+  isTerminalView,
+} from "@/context-providers/app-context-provider";
+import { PenLine, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export type EnvironmentVariable = {
   name: string;
@@ -19,19 +21,22 @@ export type EnvironmentVariable = {
 };
 
 export function EnvironmentTable() {
+  const { currentView } = useApp();
+  const { terminalEnvironments } = useTerminalManager();
   const [environment, setEnvironment] = useState<EnvironmentVariable[]>([]);
 
   useEffect(() => {
-    const unlistenEnvironment = listen<EnvironmentVariable[]>(
-      "terminal-environment-variables",
-      (event) => {
-        setEnvironment(event.payload);
-      },
-    );
-    return () => {
-      unlistenEnvironment.then();
-    };
-  }, [environment]);
+    setEnvironment((prev) => {
+      if (isTerminalView(currentView)) {
+        const terminalId = currentView.terminalId;
+        const newEnvironment = terminalEnvironments.get(terminalId) ?? [];
+        if (newEnvironment !== prev) {
+          return newEnvironment;
+        }
+      }
+      return prev;
+    });
+  }, [terminalEnvironments, currentView]);
 
   return (
     <div className="border rounded-sm overflow-hidden h-full w-full">
